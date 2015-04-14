@@ -1,0 +1,96 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="1000"
+            android:gravity="center"
+            android:id="@+id/textViewLog"
+            android:layout_weight="1"
+            android:minHeight="500dp"
+            android:textSize="120dp"
+            android:nestedScrollingEnabled="false" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:paddingTop="20dp"
+            android:paddingLeft="100dp"
+            android:paddingRight="100dp">
+                <Button
+                    android:id="@+id/btnPause"
+                    android:layout_weight="1"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text="Pause"/>
+
+                <Button
+                    android:id="@+id/btnReset"
+                    android:layout_weight="1"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text="Reset"/>
+         </LinearLayout>
+        <com.androidplot.xy.XYPlot
+            android:id="@+id/accelrometerHistoryPlot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="10px"
+            android:layout_marginLeft="10px"
+            android:layout_marginRight="10px"
+            title="Accelerometer"
+            />
+
+        <LinearLayout android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp">
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:text="Sensor Axis : "
+                android:gravity="center"/>
+            <RadioGroup
+                android:layout_width="150dp"
+                android:layout_height="20dp"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/radioButtonX"
+                    android:layout_width="50dp"
+                    android:layout_height="fill_parent"
+                    android:text="X"
+                    android:onClick="onRadioButtonClicked"
+                    />
+                <RadioButton
+                    android:id="@+id/radioButtonY"
+                    android:layout_width="50dp"
+                    android:layout_height="fill_parent"
+                    android:text="Y"
+                    android:checked="true"
+                    android:onClick="onRadioButtonClicked"
+                    />
+                <RadioButton
+                    android:id="@+id/radioButtonZ"
+                    android:layout_width="50dp"
+                    android:layout_height="fill_parent"
+                    android:text="Z"
+                    android:onClick="onRadioButtonClicked"/>
+                </RadioGroup>
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>
