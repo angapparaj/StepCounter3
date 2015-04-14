@@ -32,35 +32,6 @@ import java.util.Arrays;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
-    private class APRIndexFormat extends Format {
-        @Override
-        public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-            Number num = (Number) obj;
-
-            // using num.intValue() will floor the value, so we add 0.5 to round instead:
-            int roundNum = (int) (num.floatValue() + 0.5f);
-            switch(roundNum) {
-                case 0:
-                    toAppendTo.append("Azimuth");
-                    break;
-                case 1:
-                    toAppendTo.append("Pitch");
-                    break;
-                case 2:
-                    toAppendTo.append("Roll");
-                    break;
-                default:
-                    toAppendTo.append("Unknown");
-            }
-            return toAppendTo;
-        }
-
-        @Override
-        public Object parseObject(String source, ParsePosition pos) {
-            return null;  // We don't use this so just return null for now.
-        }
-    }
-
     private static final int HISTORY_SIZE = 500;            // number of points to plot in history
     private static final int SMOOTHING_RANGE = 10;
     private SensorManager sensorMgr = null;
@@ -213,9 +184,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         }
 
-        //float smoothedAvg = 0;
-        //aprLevelsSeries.setModel(Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
-
         // get rid the oldest sample in history:
         if (rawDataSeries.size() > HISTORY_SIZE) {
             rawDataSeries.removeFirst();
@@ -223,15 +191,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             demeanedDataSeries.removeFirst();
         }
 
-     //   if(smoothedZSeries.size() > HISTORY_SIZE) {
-       //     smoothedZSeries.removeFirst();
-        //}
-
-        //accelXSeries.addLast(null, sensorEvent.values[0]);
         rawDataSeries.addLast(null, sensorEvent.values[sensorAxisIndex]);
-        //accelZSeries.addLast(null, sensorEvent.values[2]);
-
-
 
         if(smoothedDataSeries.size() < SMOOTHING_RANGE)
         {
