@@ -1,39 +1,31 @@
 package com.example.angappak.myapplication;
 
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.androidplot.util.PlotStatistics;
 import com.androidplot.xy.*;
-
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
-import java.util.Arrays;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
     private static final int HISTORY_SIZE = 500;            // number of points to plot in history
     private static final int SMOOTHING_RANGE = 10;
+    private static final int PEAK_THRESHOLD = 2;
+    private int WINDOW_SIZE = 200;
+    private int WINDOW_OVERLAP = 10;
+
     private SensorManager sensorMgr = null;
     private Sensor accelerometerSensor = null;
     private Sensor gyroSensor = null;
@@ -141,7 +133,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void cleanup() {
-        // aunregister with the orientation sensor before exiting:
+        // unregister with the orientation sensor before exiting:
         sensorMgr.unregisterListener(this);
         finish();
     }
@@ -170,7 +162,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     int currentWindow = 0;
     int runningSum = 0;
-    float[] windowValues = new float[500];
+    float[] windowValues = new float[WINDOW_SIZE];
 
     int stepCount = 0;
 
@@ -181,7 +173,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         if(paused) {
             return;
-
         }
 
         // get rid the oldest sample in history:
@@ -218,17 +209,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         currentWindow++;
 
-        if(currentWindow>= 500)
+        if(currentWindow>= WINDOW_SIZE)
         {
             // make calculations for this window
 
             // Demean the data
-            float mean = runningSum /500;
+            float mean = runningSum / WINDOW_SIZE;
 
             float prevSlope = 0;
             float currentSlope = 0;
             boolean zeroCrossed = false;
-            for(int i=0; i<500; i++)
+            float zeroCrossedIndex = 0;
+            for(int i=0; i< WINDOW_SIZE; i++)
             {
 
                 float demeanedValue = windowValues[i] - mean;
@@ -236,45 +228,39 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 if(i>0) {
 
+                    // Check for zero crossing
                     if(windowValues[i-1]<=0 && windowValues[i]>0)
                     {
                         zeroCrossed = true;
+                        zeroCrossedIndex = i;
                     }
 
                     prevSlope = currentSlope;
                     currentSlope = windowValues[i] - windowValues[i-1];
 
-                    if(currentSlope < 0 && prevSlope>0 && windowValues[i-1] > 2 && zeroCrossed)
+                    //Now detect peaks by checking for change in slope from positive to negative
+                    // Also use a threshold to look for peaks more than certain value.
+                    // ZeroCrossed check ensures that we only count one peak after every zero crossing.
+                    if(currentSlope < 0 && prevSlope>0 && windowValues[i-1] > PEAK_THRESHOLD && zeroCrossed)
                     {
-                        zeroCrossed = false;
-                        stepCount++;
-                        stepsTextView.setText(Integer.toString(stepCount));
+                        // Check to ensure that we have a sharper peak. So make sure there is less than 100 ticks between peak and last zero crossing. Approx 1 sec at 100 hz
+                        if(i-zeroCrossedIndex < 100) {
+                            zeroCrossed = false;
+                            stepCount++;
+                            stepsTextView.setText(Integer.toString(stepCount));
+                        }
                     }
                  }
-                //Now detect peaks
-
-
                 demeanedDataSeries.addLast(null, demeanedValue);
             }
-
-
 
             // reset window back to 0
             currentWindow = 0;
             runningSum = 0;
-
         }
-
-        // add the latest history sample:
-
-        //accelYSeries.addLast(null, sensorEvent.values[1]);
-
-
-        //accelXSeries.getX(accelXSeries.size());
 
         // redraw the Plots:
         accelHistoryPlot.redraw();
-        //aprHistoryPlot.redraw();
     }
 
     @Override
